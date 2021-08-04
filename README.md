@@ -1,0 +1,1 @@
+# shopify-json-alternative-templates
