@@ -10,7 +10,7 @@
 		{%- endif -%}
 
 		{%- capture variant_json -%}
-			{%- include 'object-variant-json' with variant: variant, include_recharge: include_recharge -%}
+			{%- render 'object-variant-json' with variant: variant, include_recharge: include_recharge -%}
 		{%- endcapture -%}
 
 		{%- if variant_json == "null" -%}
@@ -27,7 +27,7 @@
 		{%- endif -%}
 
 		{%- capture image_json -%}
-			{%- include 'object-image-json' with image: image -%}
+			{%- render 'object-image-json' with image: image -%}
 		{%- endcapture -%}
 
 		{%- if image_json == "null" -%}
@@ -45,7 +45,8 @@
 			{%- assign subscription_product 		= product.metafields.subscriptions -%}
 			{%- assign shipping_interval_unit_type 	= subscription_product.shipping_interval_unit_type | default: 'Days' -%}
 			{%- assign shipping_interval_frequency 	= subscription_product.shipping_interval_frequency | split: ',' | default: 30 -%}
-			{%- assign product_tags = product.tags | remove: ' ' | downcase -%}
+			{%- assign product_tags 				= product.tags | remove: ' ' | downcase -%}
+
 			{%- if subscription_product.is_subscription_only == 'true' or product_tags contains 'subscriptiononly' -%}
 				{%- assign subscription_only = true -%}
 			{%- else -%}
@@ -69,19 +70,41 @@
 		{%- endcapture -%}
 	{%- endif -%}
 
+	{%- assign options_with_values = "" -%}
+	{%- for option_with_values in product.options_with_values -%}
+		{%- unless option_with_values -%}
+			{%- continue -%}
+		{%- endunless -%}
+
+		{%- capture option_with_values_json -%}
+			{
+				"name": {{- option_with_values.name | json -}},
+				"index": {{- option_with_values.index | json -}},
+				"values": {{- option_with_values.values | json -}},
+				"selected_value": {{- option_with_values.selected_value | json -}}
+			}
+		{%- endcapture -%}
+
+		{%- if options_with_values != "" -%}
+			{%- assign options_with_values = options_with_values | append: "," -%}
+		{%- endif -%}
+
+		{%- assign options_with_values = options_with_values | append: option_with_values_json -%}
+	{%- endfor -%}
+
 	{
 		"available": {{- product.available | json -}},
-		"first_available_variant": {%- include 'object-variant-json' with variant: product.first_available_variant -%},
+		"first_available_variant": {%- render 'object-variant-json' with variant: product.first_available_variant -%},
 		"compared_at_price": {{- product.compared_at_price | json -}},
 		"compared_at_price_max": {{- product.compared_at_price_max | json -}},
 		"compared_at_price_min": {{- product.compared_at_price_min | json -}},
 		"content": {{- product.content | json -}},
 		"created_at": "{{- product.created_at -}}",
 		"description": {{- product.description | json -}},
-		"featured_image": {%- include 'object-image-json' with image: product.featured_image -%},
+		"featured_image": {%- render 'object-image-json' with image: product.featured_image -%},
 		"handle": {{- product.handle | json -}},
 		"has_only_default_variant": {{- product.has_only_default_variant | json -}},
-		"options": {{- product.options_with_values | json -}},
+		"options": {{- product.options | json -}},
 		"options_with_values": {{- product.options_with_values | json -}},
 		"template_suffix": {{- product.template_suffix | json -}},
 		"url": {{- product.url | json -}},
@@ -93,14 +116,14 @@
 		"price_min": {{- product.price_min | json -}},
 		"price_varies": {{- product.price_varies | json -}},
 		"published_at": "{{- product.published_at -}}",
+		"requires_selling_plan": {{- product.requires_selling_plan | json -}},
 		"variants": [{{- variants_json -}}],
+		"selling_plan_groups": {{- product.selling_plan_groups | json -}},
 		"tags": {{- product.tags | json -}},
 		"title": {{- product.title | json -}},
 		"type": {{- product.type | json -}},
 		"vendor": {{- product.vendor | json -}},
 		{{- product_recharge_json_properties -}}
-		"metafields": {
-
-		}
+		"metafields": {}
 	}
 {%- else -%}null{%- endif -%}

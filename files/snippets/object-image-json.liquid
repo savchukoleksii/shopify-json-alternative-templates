@@ -7,10 +7,7 @@
 		"id": {{- image.id | json -}},
 		"media_type": {{- image.media_type | json -}},
 		"position": {{- image.position | json -}},
-		"preview_image": {{- image.preview_image | json -}},
-		"product_id": {{- image.product_id | json -}},
-		"src": {{- image.src | json -}},
-		"variants": {{- image.variants | json -}},
+		"src": {{- image.src | img_url: 'master' | json -}},
 		"width": {{- image.width | json -}}
 	}
 {%- else -%}null{%- endif -%}
